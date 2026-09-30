@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Relics-of-Return/rsc-manager/main/public/logo.png" alt="Relics of Return" width="96">
+ <img width="240" height="100" alt="logo" src="https://github.com/user-attachments/assets/6d0e6faa-1cbb-4f5c-a27a-c09f577135ab" />
+
 </p>
 
 # Relics of Return
