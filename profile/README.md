@@ -77,8 +77,9 @@ Each repository's own README has its setup details.
 
 | World | Purpose |
 | --- | --- |
-| World 1 | The main world |
-| World 2 | A botting world with a scripting API, kept apart from the main world |
+| World 1 | Main world |
+| World 2 | Botting world with a scripting API, kept apart from the main world |
+| Beta | Testing upcoming updates/fixes prior to being released |
 
 ## Credits and license
 
