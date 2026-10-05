@@ -1,6 +1,5 @@
 <p align="center">
- <img width="240" height="100" alt="logo" src="https://github.com/user-attachments/assets/6d0e6faa-1cbb-4f5c-a27a-c09f577135ab" />
-
+<img width="240" height="130" alt="logo" src="https://github.com/user-attachments/assets/008e1298-8744-4622-8153-1ecd183d299d" />
 </p>
 
 # Relics of Return
