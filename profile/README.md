@@ -1,96 +1,104 @@
 <p align="center">
-<img width="240" height="130" alt="logo" src="https://github.com/user-attachments/assets/008e1298-8744-4622-8153-1ecd183d299d" />
+  <img src="https://raw.githubusercontent.com/Relics-of-Return/rsc-manager/main/public/logo.png" alt="Relics of Return" width="96">
 </p>
 
 # Relics of Return
 
-A browser-based **RuneScape Classic** private server: a game client that runs in any browser, a game server, a website with hiscores and accounts, and the tools to run it all. It builds on the open-source [2003Scape](https://github.com/2003scape) RSC projects.
+Relics of Return is a **RuneScape Classic** private server playable in the web browser or through a desktop launcher. The project comprises the game client, the game server, a website providing accounts and hiscores, a wiki, the World and Model Editors, and the tooling required to operate the service. It is built on the open-source [2003Scape](https://github.com/2003scape) RuneScape Classic projects.
 
-Play in the browser with multiplayer, 18 skills, NPC and player combat, free-to-play quests, trading, a Grand Exchange, and a botting world for scripts.
+The project preserves the look and feel of Classic while adding the elements of Old School RuneScape that players missed:
 
-## How the pieces fit
+- **19 skills**, including Construction, with player-owned houses.
+- **Old School interfaces**: a bank with tabs, placeholders and notes; prayer and spell grids; a character summary; chatbox dialogues; and travel maps for the ships.
+- **Hiscores with records**: the first players to reach level 99 and 200M experience in each skill, together with a collection log of every collectible item.
+- **Animated skill actions**: woodcutting, mining, fishing and firemaking each have a dedicated animation, and every skill has a cape.
+- **Events and content**: the Evil Tree, achievement diaries, ironman accounts, and reworked towns (Varrock, Falador, Draynor, Al Kharid and Yanille).
+- **An optional HD renderer**: dynamic lighting and shadows, photographic textures, water and reflections, day/night cycles, seasons, weather, clouds and mist. The classic graphics can be restored with a single keypress.
+- **In-client plugins**, several of which are ported from RuneLite's Plugin Hub.
 
-```
-   browser / launcher                     website
+## Architecture
+
+The following diagram illustrates how the components of the project interconnect:
+
+```text
+   browser/launcher                     website
  ┌──────────────────┐             ┌──────────────────┐
  │ rsc-client       │             │ rsc-web (Next.js)│
- │ rsc-tauri-client │             └────────┬─────────┘
- └────────┬─────────┘                      │ HTTP
-          │ WebSocket                ┌─────▼─────┐
-   ┌──────▼──────┐   JSON / TCP      │  rsc-www  │
-   │ rsc-server  ├──────────────┐    └─────┬─────┘
-   │ (a world)   │              │          │ JSON / TCP
-   └──────┬──────┘        ┌─────▼──────────▼─────┐
-          │ reads         │   rsc-data-server    │
-   ┌──────▼──────┐        │ accounts, SQLite     │
-   │  rsc-data   │        └──────────────────────┘
-   └─────────────┘
-              rsc-manager starts, watches and stops all of it
+ │ rsc-tauri-client │             └────────┬─────────┘        
+ └────────┬─────────┘                      │ HTTP            ┌──────────────────────────┐
+          │ WebSocket                ┌─────▼─────┐           │ rsc-manager              │
+   ┌──────▼──────┐   JSON / TCP      │  rsc-www  │           │ starts, watches and      │
+   │ rsc-server  ├──────────────┐    └─────┬─────┘           │ stops all of it          │
+   │ (a world)   │              │          │ JSON / TCP      └──────────────────────────┘
+   └──────┬──────┘        ┌─────▼──────────▼─────┐           ┌──────────────────────────┐
+          │ reads         │   rsc-data-server    │           │ rsc-editor               │
+   ┌──────▼──────┐        │ accounts, SQLite     │           │ edits the world and its  │
+   │  rsc-data   │        └──────────────────────┘           │ models                   │
+   └─────────────┘                                           └──────────────────────────┘
 ```
 
 ## Repositories
 
+Each part of the game is released through three stages, **dev → beta → live**, and each stage is maintained in its own repository. For example, `rsc-server-dev` is where code is written, `rsc-server-beta` is what testers play, and `rsc-server` is the production server. The same arrangement applies to the client, the game data and the data server.
+
 ### Game
 
-| Repository | What it is |
+| Repository | Description |
 | --- | --- |
-| **rsc-client** | The RuneScape Classic client ported from Java to JavaScript. Runs in the browser over WebSockets, with fixed, resizable and classic layouts, interface skins, seasonal login themes and an equipment tab. |
-| **rsc-server** | The game server: packet handling, combat, skills, quests, NPCs, trading, banking, the Grand Exchange, staff tools and the scripting API for the botting world. Runs as one or more worlds. |
-| **rsc-data** | Shared game data as JSON: drop tables, spawns, shops, skill data, quests and landscape. Read by the server. |
-| **rsc-data-server** | The login and persistence server (Jagex's "loginserver"). Stores accounts and players in SQLite and coordinates worlds, friends and hiscores over JSON on TCP. |
+| **rsc-client** | The RuneScape Classic client, ported from Java to JavaScript. It runs in the browser over WebSockets and provides fixed and resizable layouts, the HD renderer, in-client plugins and Discord Rich Presence. |
+| **rsc-server** | The game server: combat, skills, quests, NPCs, trading, banking, the Grand Exchange, Construction, events, staff tools, and the scripting API for the botting world. It runs as one or more worlds. |
+| **rsc-data** | The game data in JSON format: items, NPCs, objects, drop tables, spawns, shops, skills, quests, the collection log, and the landscape. |
+| **rsc-data-server** | The login and persistence server (Jagex's "loginserver"). It stores accounts and players in SQLite and manages friends, hiscores, records and the collection log for each world. |
 
 ### Website
 
-| Repository | What it is |
+| Repository | Description |
 | --- | --- |
-| **rsc-web** | The website, built with Next.js, TypeScript and Tailwind: news, hiscores, account management, the play page, a public status page, and staff-only tools such as the report dashboard and the world map editor. |
-| **rsc-www** | The backend the website talks to: account registration, world status, hiscores and news, served over a small HTTP API on top of the data server. |
+| **rsc-web** | The website, built with Next.js, TypeScript and Tailwind: news; hiscores with records and the collection log; the account page; the play page with each world's ping; the roadmap; and staff tools. |
+| **rsc-www** | The backend for the website: accounts, world status, hiscores, news, launcher downloads, and the Discord integration that admits beta testers. |
+| **rsc-wiki** | The wiki, built with Next.js: every item, monster, drop table, shop, skill, quest, spell and prayer, generated from the game data, together with guides written by the team. |
 
 ### Tools and clients
 
-| Repository | What it is |
+| Repository | Description |
 | --- | --- |
-| **rsc-manager** | Starts, watches and stops every service, restarts crashes, and serves a dashboard for logs, players online, broadcasts and scheduled restarts. |
-| **rsc-tauri-client** | A desktop launcher and client, built with Tauri, that runs the game without a browser. It has self-updating, keychain-stored accounts, Discord Rich Presence and sandboxed plugins. |
+| **rsc-tauri-client** | The desktop launcher, built with Tauri. It updates itself and the game, stores accounts in the system keychain, displays Discord Rich Presence, and provides a "Join the beta" switch for testers. |
+| **rsc-editor** | The World and Model Editors: paint the ground, walls, roofs, scenery, spawns and lighting of the world, and edit scenery models, drawn live by the game's own renderer. |
+| **rsc-manager** | Starts, monitors and stops every service, restarts any that crash, and serves a dashboard for logs, players online, broadcasts, backups and scheduled restarts. |
 
-### Design and docs
-
-| Folder | What it holds |
-| --- | --- |
-| **branding** | The logo, emblem and Discord art (Aseprite sources and exports). |
-| **documentation** | Design notes and guides: commands, staff ranks, client interface, quest research, the standalone launcher and more. |
-
-## Running it
-
-Everything is started from the project root with one command on Windows:
-
-```
-manager.cmd
-```
-
-This starts the data servers, the game worlds, the client files, the website API and the front end, then opens the manager dashboard. The website is at `http://localhost:3000`.
-
-Each repository's own README has its setup details.
-
-## Worlds
+## Game Worlds
 
 | World | Purpose |
 | --- | --- |
-| World 1 | Main world |
-| World 2 | Botting world with a scripting API, kept apart from the main world |
-| Beta | Testing upcoming updates/fixes prior to being released |
+| World 1 | Primary |
+| World 2 | Botting (scripting API; separate from the primary world) |
+| World 3 | Beta (invitation only) |
 
-## Credits and license
+An account is valid on every world, and each world maintains its own character.
 
-- **[2003Scape](https://github.com/2003scape)**: the client, server and data projects this is built on.
-- **[117HD](https://github.com/117HD/RLHD)**: their idea inspired the HD engine rework of the client, with dynamic lighting, shadows, water and reflections, materials and post-processing.
-- **[OSRS World](https://osrs.world/)**: the world map editor's interface is based on theirs.
-- **[mudclient204](https://github.com/2003scape/mudclient204)**: the original client revision that rsc-client is a JavaScript port of.
-- **[RSCGo](https://github.com/spkaeros/RSCGo)**: another RuneScape Classic server the client is built to work with.
+## Acknowledgements and License
+
+- **[2003Scape](https://github.com/2003scape)**: the client, server and data projects on which this project is built.
+- **[mudclient204](https://github.com/2003scape/mudclient204)**: the original client revision of which rsc-client is a JavaScript port.
+- **[117HD](https://github.com/117HD/RLHD)**: its ideas inspired the client's HD renderer.
+- **[RuneLite](https://runelite.net/)**: the client's interface, layout and several of its plugins are modelled on RuneLite and its Plugin Hub.
+- **[OSRS World](https://osrs.world/)**: the interface of the World Editor is based on that project.
 - **[RSCPlus](https://github.com/RSCPlus/rscplus)**: the client's overlays (hit, prayer and fatigue bars) follow its style.
 - **[OpenRSC](https://gitlab.com/openrsc/openrsc)**: a reference for authentic behaviour when writing quests and scripts.
-- **[RuneLite](https://runelite.net/)**: the client's interface and layout take their cues from it.
+- **[RSCGo](https://github.com/spkaeros/RSCGo)**: another RuneScape Classic server with which the client is designed to work.
 
-RuneScape is a trademark of Jagex Ltd; this project is not affiliated with or endorsed by Jagex.
+Several in-client plugins are ports or adaptations of RuneLite plugin projects:
 
-Code is licensed under AGPL-3.0-or-later. See each repository for details.
+- **[osrs-tcg](https://github.com/Azderi/osrs-tcg)**: the card-collecting plugin on which the client's TCG is based.
+- **[resource-packs](https://github.com/melkypie/resource-packs)**: the interface packs that restyle the prayers, spells, quests tab and frame.
+- **[compact-orbs](https://github.com/its-cue/compact-orbs)**: the compact orb arrangements offered by the interface layout.
+- **[storage-interactions](https://github.com/Moltenrain/storage-interactions)**: the quantity and note overlay for storage interfaces.
+- **[Expanded-bank](https://github.com/VolkezXO/Expanded-bank)**: the expanded bank interface.
+- **[spirit-tree-map](https://github.com/MJHylkema/spirit-tree-map)**: the interactive travel maps for the ships.
+- **[vicious-bars](https://github.com/viciousliqx/vicious-bars)**: the status bars that replace the orbs.
+
+The photographic textures given to scenery, roofs and walls in the optional HD renderer come from **[Poly Haven](https://polyhaven.com/)**, a library of CC0 HDRIs, textures and 3D models.
+
+RuneScape is a trademark of Jagex Ltd. This project is not affiliated with or endorsed by Jagex.
+
+The code is licensed under AGPL-3.0-or-later. See each repository for details.
