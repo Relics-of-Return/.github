@@ -1,4 +1,4 @@
-<img width="720" height="390" alt="logo" src="https://github.com/user-attachments/assets/df223c93-e550-4e33-9583-2b77cecbd3df" />
+<img width="800" height="250" alt="logo-classic" src="https://github.com/user-attachments/assets/03a16a04-6c4d-4eda-bb9b-14166802ae78" />
 
 
 # Relics of Return
